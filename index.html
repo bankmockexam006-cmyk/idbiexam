@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bank Exam | Advanced Mock Test</title>
+<style>
+:root{--navy:#102747;--blue:#1769aa;--bg:#f3f6fb;--ink:#182536;--muted:#66758a;--line:#dce4ef;--green:#16845b;--red:#c0392b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,Arial,sans-serif;color:var(--ink)}
+header{background:linear-gradient(120deg,#102747,#1769aa);color:#fff;padding:22px 18px}
+.head{max-width:980px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:15px}
+.brand{font-size:20px;font-weight:800;letter-spacing:.3px}.sub{font-size:12px;opacity:.8;margin-top:5px}
+main{max-width:980px;margin:28px auto;padding:0 15px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 8px 28px #18375a0b}
+h1{font-size:25px;margin:0 0 8px}h2{font-size:19px;margin:0 0 14px}.muted{color:var(--muted);line-height:1.5}
+.field{margin:16px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+input[type=text],input[type=email],input[type=tel]{width:100%;padding:13px;border:1px solid #cbd6e4;border-radius:9px;font-size:15px;outline:none}
+input:focus{border-color:var(--blue);box-shadow:0 0 0 3px #1769aa18}
+button{border:0;border-radius:9px;padding:13px 19px;background:var(--blue);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+button:hover{filter:brightness(.94)}button:disabled{opacity:.45;cursor:not-allowed}
+.note{background:#eef5ff;border-left:4px solid var(--blue);padding:12px 14px;border-radius:7px;font-size:13px;color:#284664;line-height:1.5}
+.hidden{display:none!important}.exam-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.timer{background:#fff1e9;color:#a94713;border:1px solid #ffd4bd;padding:10px 14px;border-radius:10px;font-weight:800;font-variant-numeric:tabular-nums}
+.progress-wrap{height:7px;background:#e8edf4;border-radius:10px;overflow:hidden;margin:12px 0 22px}.progress{height:100%;background:var(--green);width:0;transition:width .2s}
+.question{padding:20px 0;border-bottom:1px solid var(--line)}.question:last-child{border:0}
+.qtitle{font-weight:750;line-height:1.55;margin-bottom:13px}.qnum{color:var(--blue);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.options{display:grid;gap:9px}.option{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);padding:12px;border-radius:9px;cursor:pointer;line-height:1.4}
+.option:hover{border-color:#8eb4dc;background:#f8fbff}.option input{margin-top:3px;accent-color:var(--blue)}
+.actions{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:20px}
+.result-score{font-size:42px;font-weight:850;color:var(--navy);margin:8px 0}
+.result-row{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+.status{font-weight:700}.good{color:var(--green)}.bad{color:var(--red)}
+footer{text-align:center;color:#8290a2;font-size:12px;padding:28px 10px}
+@media(max-width:600px){.panel{padding:18px}h1{font-size:21px}.head{align-items:flex-start;flex-direction:column}.actions button{width:100%}}
+</style>
+</head>
+<body>
+<header><div class="head"><div><div class="brand">IDBI BANK EXAM • ADVANCED MOCK TEST</div><div class="sub">10 Questions · 15 Minutes</div></div><div class="sub">Candidate Assessment Portal</div></div></header>
+<main>
+<section id="login" class="panel">
+<h1>Candidate Login</h1>
+<p class="muted">Enter your details to start the 15-minute examination. Use a valid email address to receive your result.</p>
+<div class="field"><label for="candidate">Full Name</label><input id="candidate" type="text" placeholder="Enter your name" required></div>
+<div class="field"><label for="phone">Phone Number</label><input id="phone" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number" required></div>
+<div class="field"><label for="email">Email ID</label><input id="email" type="email" placeholder="name@example.com" required></div>
+<div class="note">Exam duration: 15 minutes. Total questions: 10. Each question carries 1 mark. There is no negative marking. The test will submit automatically when the timer reaches zero.</div>
+<div style="margin-top:20px"><button id="startBtn">Login & Start Exam</button></div>
+<p id="loginError" class="status bad" aria-live="polite"></p>
+</section>
+
+<section id="exam" class="panel hidden">
+<div class="exam-top"><div><h1>IDBI Bank Exam</h1><div class="muted" id="candidateLabel"></div></div><div class="timer">TIME LEFT: <span id="timer">15:00</span></div></div>
+<div class="progress-wrap"><div class="progress" id="progress"></div></div>
+<div id="questions"></div>
+<div class="actions"><span class="muted" id="answered">0 of 10 answered</span><button id="submitBtn">Submit Exam</button></div>
+</section>
+
+<section id="result" class="panel hidden">
+<h1>Examination Result</h1><p class="muted" id="resultName"></p>
+<div class="result-score" id="score">0 / 10</div>
+<p class="muted" id="resultMessage"></p>
+<div class="result-row"><span>Correct answers</span><strong id="correct">0</strong></div>
+<div class="result-row"><span>Incorrect answers</span><strong id="incorrect">0</strong></div>
+<div class="result-row"><span>Unanswered</span><strong id="unanswered">0</strong></div>
+<div class="result-row"><span>Time used</span><strong id="timeUsed">—</strong></div>
+<div class="note" style="margin-top:18px" id="mailStatus">Your result is displayed here. Email delivery requires EmailJS configuration in the source file; see README.</div>
+<button style="margin-top:20px" onclick="location.reload()">Finish</button>
+</section>
+</main>
+<footer></footer>
+
+<script>
+/* EMAIL SETUP:
+   1. Create an account at https://www.emailjs.com/
+   2. Create an Email Service and an Email Template.
+   3. In the template, use: {{to_email}}, {{candidate_name}}, {{phone}},
+      {{score}}, {{correct}}, {{incorrect}}, {{unanswered}}, {{details}}
+   4. Replace the three values below. Never put a private email-service secret
+      or private API key in frontend code. EmailJS public key is designed for browser use.
+*/
+const EMAILJS_PUBLIC_KEY = "YOUR_EMAILJS_PUBLIC_KEY";
+const EMAILJS_SERVICE_ID = "YOUR_EMAILJS_SERVICE_ID";
+const EMAILJS_TEMPLATE_ID = "YOUR_EMAILJS_TEMPLATE_ID";
+const ADMIN_EMAIL = "YOUR_ADMIN_EMAIL@example.com"; // Receives a copy of each result
+
+const questions = [
+{q:"A sum increases by 21% in 2 years at compound interest, compounded annually. What is the compound interest percentage for 3 years at the same rate?",o:["32.10%","33.10%","31.50%","34.10%"],a:1},
+{q:"A can complete a work in 18 days, B in 24 days and C in 36 days. A works alone for 3 days, then B joins. After 4 days, C also joins. How many additional days are required to complete the remaining work?",o:["3 days","4 days","32/9 days","5 days"],a:2},
+{q:"A bag contains 5 red, 4 blue and 3 green balls. Three balls are drawn randomly without replacement. What is the probability that all three are of different colours?",o:["3/11","4/11","5/22","6/11"],a:0},
+{q:"Find the missing number: 7, 26, 63, 124, 215, ?",o:["343","341","344","342"],a:3},
+{q:"A and B invest in a business in the ratio 5:7. After 4 months, A withdraws 40% of his capital. After 6 months, B increases his capital by 20%. Find their profit-sharing ratio at the end of 12 months.",o:["25:42","110:231","5:9","11:21"],a:1},
+{q:"A train crosses a pole in 12 seconds and a 180-metre platform in 24 seconds. Find the length of the train.",o:["150 metres","160 metres","180 metres","200 metres"],a:2},
+{q:"A sum is divided between X and Y in the ratio 7:9. If X receives ₹840 less than Y, which statements are correct? Select all that apply.",o:["One part = ₹420","X receives ₹2,940","Y receives ₹3,780","Total amount = ₹7,000"],a:[0,1,2],multi:true},
+{q:"If the average of 11 consecutive integers is 35, the largest integer is 40.",o:["True","False"],a:0,tf:true},
+{q:"A and B together can complete a task in 10 days. A alone can complete it in 15 days. B alone can complete it in how many days?",o:["20 days","25 days","30 days","35 days"],a:2},
+{q:"₹80,000 is invested for 2 years. Interest is 10% in year one and 20% in year two, compounded annually. A 5% tax is deducted from the final accumulated amount. What is the amount after tax?",o:["₹99,360","₹99,720","₹1,00,320","₹1,00,800"],a:2}
+];
+
+let candidateData={}, answers={}, seconds=900, interval=null, submitted=false, startedAt=0;
+const $=id=>document.getElementById(id);
+function renderQuestions(){
+  $("questions").innerHTML=questions.map((q,i)=>`
+    <div class="question" id="q${i}">
+      <div class="qnum">Question ${i+1} of 10 ${q.multi?"• Select all that apply":""}</div>
+      <div class="qtitle">${q.q}</div>
+      <div class="options">${q.o.map((op,j)=>`<label class="option"><input type="${q.multi?"checkbox":"radio"}" name="q${i}" value="${j}" onchange="saveAnswer(${i})"><span>${String.fromCharCode(65+j)}. ${op}</span></label>`).join("")}</div>
+    </div>`).join("");
+}
+function saveAnswer(i){
+  const inputs=[...document.querySelectorAll(`[name="q${i}"]`)];
+  answers[i]=questions[i].multi?inputs.filter(x=>x.checked).map(x=>+x.value):inputs.find(x=>x.checked)?.value;
+  const count=Object.values(answers).filter(v=>Array.isArray(v)?v.length>0:v!==undefined).length;
+  $("answered").textContent=`${count} of 10 answered`;
+  $("progress").style.width=(count*10)+"%";
+}
+$("startBtn").addEventListener("click",()=>{
+  const name=$("candidate").value.trim(), phone=$("phone").value.trim(), email=$("email").value.trim();
+  if(!name||!/^[6-9]\d{9}$/.test(phone)||!$("email").checkValidity()){
+    $("loginError").textContent="Enter your name, a valid 10-digit Indian mobile number and a valid email address.";return;
+  }
+  candidateData={name,phone,email}; startedAt=Date.now();
+  $("candidateLabel").textContent=`Candidate: ${name} • ${email}`;
+  $("login").classList.add("hidden");$("exam").classList.remove("hidden");
+  renderQuestions();updateTimer();
+  interval=setInterval(()=>{seconds--;updateTimer();if(seconds<=0)finishExam(true)},1000);
+});
+function updateTimer(){
+  const m=Math.floor(seconds/60),s=seconds%60;
+  $("timer").textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  if(seconds<=60)$("timer").parentElement.style.background="#ffe8e8";
+}
+$("submitBtn").addEventListener("click",()=>{
+  const count=Object.values(answers).filter(v=>Array.isArray(v)?v.length>0:v!==undefined).length;
+  if(!confirm(`You have answered ${count} of 10 questions. Submit your exam?`))return;
+  finishExam(false);
+});
+function finishExam(auto){
+  if(submitted)return;submitted=true;clearInterval(interval);
+  let correct=0,details=[];
+  questions.forEach((q,i)=>{
+    const selected=answers[i];
+    const isCorrect=q.multi
+      ? Array.isArray(selected)&&selected.length===q.a.length&&selected.every(v=>q.a.includes(v))
+      : selected!==undefined&&Number(selected)===q.a;
+    if(isCorrect)correct++;
+    const chosen=Array.isArray(selected)?selected.map(v=>String.fromCharCode(65+v)).join(", "):(selected===undefined?"Not answered":String.fromCharCode(65+Number(selected)));
+    details.push(`Q${i+1}: selected ${chosen}; ${isCorrect?"Correct":"Incorrect"}`);
+  });
+  const answered=Object.values(answers).filter(v=>Array.isArray(v)?v.length>0:v!==undefined).length;
+  const elapsed=Math.min(900,Math.floor((Date.now()-startedAt)/1000));
+  const used=`${Math.floor(elapsed/60)}m ${elapsed%60}s`;
+  $("exam").classList.add("hidden");$("result").classList.remove("hidden");
+  $("resultName").textContent=`${candidateData.name} • ${candidateData.email} • ${candidateData.phone}`;
+  $("score").textContent=`${correct} / 10`;
+  $("resultMessage").textContent=auto?"Time is over. Your exam was submitted automatically.":"Your exam has been submitted successfully.";
+  $("correct").textContent=correct;$("incorrect").textContent=answered-correct;$("unanswered").textContent=10-answered;$("timeUsed").textContent=used;
+  sendResultEmail(correct,answered-correct,10-answered,used,details.join("\n"));
+}
+async function sendResultEmail(correct,incorrect,unanswered,timeUsed,details){
+  if([EMAILJS_PUBLIC_KEY,EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID].some(v=>v.startsWith("YOUR_"))){
+    $("mailStatus").textContent="Your certificate will be sent to your registered email address. Thank you";
+    return;
+  }
+  try{
+    await loadEmailJs();
+    emailjs.init({publicKey:EMAILJS_PUBLIC_KEY});
+    const payload={to_email:candidateData.email,admin_email:ADMIN_EMAIL,candidate_name:candidateData.name,phone:candidateData.phone,score:`${correct}/10`,correct,incorrect,unanswered,time_used:timeUsed,details};
+    await emailjs.send(EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID,payload);
+    $("mailStatus").textContent="Result email sent successfully to the candidate email address (and admin copy, if configured in your EmailJS template).";
+  }catch(e){$("mailStatus").textContent="Email could not be sent. Please check the EmailJS setup and try again. Your result is displayed above.";}
+}
+function loadEmailJs(){
+ return new Promise((resolve,reject)=>{
+  if(window.emailjs)return resolve();
+  const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js";
+  s.onload=resolve;s.onerror=reject;document.head.appendChild(s);
+ });
+}
+</script>
+</body></html>
